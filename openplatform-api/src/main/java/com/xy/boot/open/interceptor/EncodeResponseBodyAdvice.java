@@ -26,7 +26,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-@ControllerAdvice(basePackages = "com.xy.boot.open.controller")
+//@ControllerAdvice(basePackages = "com.xy.boot.open.controller")
 public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
 
 

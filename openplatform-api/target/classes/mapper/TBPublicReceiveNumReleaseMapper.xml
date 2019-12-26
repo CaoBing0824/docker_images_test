@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xy.boot.open.mapper.TBPublicReceiveNumReleaseMapper">
+
+    <select id="getPublicNumByCondition" resultType="java.lang.String">
+        SELECT pub_receive_num FROM tb_public_receive_num_release WHERE (pub_receive_num =#{pubReceiveNum} AND area = #{area} AND statu = #{statu})
+    </select>
+
+</mapper>

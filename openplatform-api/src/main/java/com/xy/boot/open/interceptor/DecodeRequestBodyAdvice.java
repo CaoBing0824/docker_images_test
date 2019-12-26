@@ -37,7 +37,7 @@ import java.util.TreeMap;
 
 @Slf4j
 @Component
-@ControllerAdvice(basePackages = "com.xy.boot.open.controller")
+//@ControllerAdvice(basePackages = "com.xy.boot.open.controller")
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
     @Autowired
