@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: ${PROFILES_ACTIVE:dev}
+  resources:
+    static-locations:
+      - classpath:/META-INF/resources/
+  devtools:
+    restart:
+      enabled: false
+
+#app
+server:
+    port: 9901
+    servlet:
+      context-path: /open/api/
+
