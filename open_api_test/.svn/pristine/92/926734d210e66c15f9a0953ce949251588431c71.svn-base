@@ -1,0 +1,181 @@
+
+package com.xy.api.demo.utils;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.util.EntityUtils;
+import sun.rmi.runtime.Log;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class HttpUtil {
+
+    private static SSLConnectionSocketFactory sslsf = null;
+    private static PoolingHttpClientConnectionManager cm = null;
+
+    public static void addHeaders(HashMap<String, String> headers, HttpPost post) {
+        Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, String> entry = it.next();
+            post.addHeader(entry.getKey(), entry.getValue());
+        }
+        post.addHeader("Content-Type", "application/json;charset=UTF-8");
+    }
+
+    public static byte[] buildSendData(byte[] sendData, Byte nz, Byte crypt, byte[] aesKey) {
+        if (nz == null) {
+            nz = FlagConst.ZIP_FLAG_NO;
+        }
+        if (crypt == null) {
+            crypt = FlagConst.CRYPT_FLAG_NO;
+        }
+        if (nz == FlagConst.ZIP_FLAG_GZIP) {
+            sendData = ZipUtils.compress(sendData);
+        }
+
+        if (crypt == FlagConst.CRYPT_FLAG_AES128) {
+            sendData = AESUtils.encrypt(sendData, aesKey);
+        } else if (crypt == FlagConst.CRYPT_FLAG_NO) {
+            // 无操作
+        } else {
+            throw new RuntimeException("crypt flag is invalid");
+        }
+        return sendData;
+    }
+
+    public static byte[] buildSendData(byte[] sendData, Byte nz, Byte crypt, String aesKey) {
+        if (nz == null) {
+            nz = FlagConst.ZIP_FLAG_NO;
+        }
+        if (crypt == null) {
+            crypt = FlagConst.CRYPT_FLAG_NO;
+        }
+        if (nz == FlagConst.ZIP_FLAG_GZIP) {
+            sendData = ZipUtils.compress(sendData);
+        }
+
+        if (crypt == FlagConst.CRYPT_FLAG_AES128) {
+            sendData = MyAESutils.encrypt(sendData, aesKey);
+        } else if (crypt == FlagConst.CRYPT_FLAG_NO) {
+            // 无操作
+        } else {
+            throw new RuntimeException("crypt flag is invalid");
+        }
+        return sendData;
+    }
+
+    public static byte[] buildRecData(byte[] recData, Byte nz, Byte crypt, byte[] aesKey) {
+        if (nz == null) {
+            nz = FlagConst.ZIP_FLAG_NO;
+        }
+        if (crypt == null) {
+            crypt = FlagConst.CRYPT_FLAG_NO;
+        }
+        try {
+            if (crypt == FlagConst.CRYPT_FLAG_AES128) {
+                recData = AESUtils.decrypt(recData, aesKey);
+            } else if (crypt == FlagConst.CRYPT_FLAG_NO) {
+                // 无操作
+            } else {
+                throw new RuntimeException("crypt flag is invalid");
+            }
+            if (nz == FlagConst.ZIP_FLAG_GZIP) {
+                recData = ZipUtils.uncompress(recData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return recData;
+    }
+
+    public static byte[] buildRecData(byte[] recData, Byte nz, Byte crypt, String aesKey) {
+        if (nz == null) {
+            nz = FlagConst.ZIP_FLAG_NO;
+        }
+        if (crypt == null) {
+            crypt = FlagConst.CRYPT_FLAG_NO;
+        }
+        try {
+            if (crypt == FlagConst.CRYPT_FLAG_AES128) {
+                recData = MyAESutils.decrypt(recData, aesKey);
+            } else if (crypt == FlagConst.CRYPT_FLAG_NO) {
+                // 无操作
+            } else {
+                throw new RuntimeException("crypt flag is invalid");
+            }
+            if (nz == FlagConst.ZIP_FLAG_GZIP) {
+                recData = ZipUtils.uncompress(recData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(new String(recData, "utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return recData;
+    }
+
+    public static String post(HttpPost post, byte[] data, String aesKey) {
+        HttpEntity entity = null;
+        try {
+            CloseableHttpClient client = getHttpClient();
+            ByteArrayEntity reqEntity = new ByteArrayEntity(data, ContentType.APPLICATION_OCTET_STREAM);
+            reqEntity.setContentEncoding("utf-8");
+            post.setEntity(reqEntity);
+            CloseableHttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200) {
+                post.abort();
+                System.out.println(response.getStatusLine().getStatusCode());
+                return null;
+            }
+            entity = response.getEntity();
+            Byte nz = 1;
+            Byte crypt = 3;
+            byte[] recData;
+            String respContent = EntityUtils.toString(entity, "UTF-8");
+            System.out.println(respContent);
+            recData = buildRecData(respContent.getBytes(), nz, crypt, aesKey);
+            return new String(recData, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (null != entity) {
+                    EntityUtils.consume(entity);
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            try {
+                post.releaseConnection();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+
+    }
+
+    public static CloseableHttpClient getHttpClient() throws Exception {
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .setConnectionManager(cm)
+                .setConnectionManagerShared(true)
+                .build();
+        return httpClient;
+    }
+
+}

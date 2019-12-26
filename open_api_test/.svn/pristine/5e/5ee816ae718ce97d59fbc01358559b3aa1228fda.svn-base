@@ -1,0 +1,44 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+import java.util.List;
+
+
+/**
+ * 上报白名单设备接口参数Vo
+ *
+ * @Author: Ray
+ * @Date: 2018-12-29
+ */
+@Data
+public class WhiteInfoParam extends BaseParam{
+
+	/**小源白名单信息编码， (首次为空、更新不能为空)*/
+	private String xyWhiteCode;
+
+	/**小源公众号编码，多个英文分号‘;’间隔,最大长度=1000*/
+	private String xyPubCodes;
+
+	/**必填，手机品牌，最大长度=20*/
+	private String phoneBrand;
+
+	/**必填，手机型号，最大长度=20*/
+	private String phoneType;
+
+	/**必填，IMEI/SN等，多个英文分号 ; 隔开，最大长度=83*/
+	private String imeis;
+
+	/**作逻辑使用，不作为入参 */
+	private List<String> imeiLs;
+
+	/**作逻辑使用，不作为入参 */
+	private List<String> xyPubCodeLs;
+
+	/**代理商编码 作逻辑使用，不作为入参*/
+	private String xyAgentCode;
+
+	/** 小源版本号 作逻辑使用，不作为入参 */
+	private String version;
+
+}

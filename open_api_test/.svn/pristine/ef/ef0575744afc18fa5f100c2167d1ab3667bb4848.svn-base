@@ -1,0 +1,19 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+/**
+ * @author heyuancheng@mfexcel.com
+ *         Date:2019-02-25.
+ **/
+@Data
+public class PubStatisticDataParam {
+    /**
+     * 公众号编码，多个，最大10个，英文分号间隔
+     */
+    String xyPubCodes;
+    /**
+     * 时间 2019-01-01
+     */
+    String date;
+}

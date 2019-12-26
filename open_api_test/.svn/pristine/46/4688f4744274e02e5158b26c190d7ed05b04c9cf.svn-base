@@ -1,0 +1,44 @@
+package com.xy.api.demo.constant;
+
+import com.xy.api.demo.utils.Base64;
+import org.apache.commons.codec.Charsets;
+
+/**
+ * Copyright (C), 2006-2019, xy
+ * FileName: GlobalConstant.java
+ * 全局常量
+ *
+ * @author maisenlin@mfexcel.com
+ * @version 1.0.0
+ * @Date 2019-09-17 10:55
+ **/
+
+public class GlobalConstant {
+    
+    public String TOKEN = "489449889115242496";
+
+    public final static String TOKEN_URL = "http://multi-dev.mfexcel.com:9000/app/access_token";
+    public final static String CHECK_TOKEN_URL = "http://multi-dev.mfexcel.com:7082/app/check_token";
+
+    public final static String API_DOMAIN = "http://10.0.8.77:9901/open/api/";
+
+    public final static String appId = "83605248";
+    public final static String appSecrectOriginalStr = "1568117226166LGuMfDiooanbKDhBOnr";
+    public final static String appSecrect = Base64.encode(appSecrectOriginalStr.getBytes(Charsets.UTF_8));
+
+    public final static String ENTINFO_UPLOAD_URL = API_DOMAIN + "entInfoUpload";
+    public final static String PUBINFO_UPLOAD_URL = API_DOMAIN + "pubInfoUpload";
+    public final static String CHANNELS_UPLOAD_URL = API_DOMAIN + "channelsUpload";
+    public final static String YELLOWPAGEINFO_UPLOAD_URL = API_DOMAIN + "yellowPageInfoUpload";
+    public final static String MENUINFO_UPLOAD_URL = API_DOMAIN + "menuInfoUpload";
+    public final static String RELATIONINFO_UPLOAD_URL = API_DOMAIN + "relationInfoUpload";
+    public final static String SMSPARSEINFO_UPLOAD_URL = API_DOMAIN + "smsParseInfoUpload";
+    public final static String ACTIONINFO_UPLOAD_URL = API_DOMAIN + "actionInfoUpload";
+    public final static String WHITEINFO_UPLOAD_URL = API_DOMAIN + "whiteInfoUpload";
+    public final static String OFFLINE_URL = API_DOMAIN + "updateStatus/offline";
+    public final static String UPLINE_URL = API_DOMAIN + "updateStatus/upline";
+    public final static String CHECKINFO_QUERY_URL = API_DOMAIN + "checkInfoQuery";
+    public final static String STATISTICS_PUB_URL = API_DOMAIN + "/statistics/pub";
+
+
+}

@@ -1,0 +1,13 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+/**
+ * @author heyuancheng@mfexcel.com
+ *         Date:2019-02-28.
+ **/
+@Data
+public class StatisticsParsm {
+    private String date;
+    private String xyPubCodes;
+}

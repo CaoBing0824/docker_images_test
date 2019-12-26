@@ -1,0 +1,123 @@
+package com.xy.api.demo.jmeterSampler;
+
+import com.alibaba.fastjson.JSONObject;
+import com.xy.api.demo.XYApi;
+import com.xy.api.demo.constant.GlobalConstant;
+import com.xy.api.demo.enums.OperateTypeEnum;
+import com.xy.api.demo.params.ProductTypeEnum;
+import com.xy.api.demo.params.PubInfoParam;
+import com.xy.api.demo.utils.TokenUtils;
+import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
+import org.apache.jmeter.samplers.SampleResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+/**
+ * Copyright (C), 2006-2019, xy
+ * FileName: PubInfoUploadSampler.java
+ * 公众号上传 jmeter测试
+ *
+ * @author maisenlin@mfexcel.com
+ * @version 1.0.0
+ * @Date 2019-09-17 10:49
+ **/
+
+public class PubInfoUploadSampler extends AbstractJavaSamplerClient implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(PubInfoUploadSampler.class);
+    protected String appid;
+    protected String appSecrept;
+    protected String url2;
+    protected String entCode;
+    private JSONObject reqBodyJSON = new JSONObject();
+    private String TOKEN;
+    private String now = System.currentTimeMillis() + "";
+    private String name = "一碗水";
+
+    public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
+        PubInfoParam param = new PubInfoParam();
+
+        // ===============================用例1 新增==============================
+        param.setXyEntCode(entCode);
+        //param.setPubName(name + "的公众号我要超过16个我要超过16个江青" + now); // 超过16个 字符 ，并含敏感词
+        // param.setPubName(name + "的公众号我要超过16个我要超过16个" + now); // 超过16个 字符
+        // param.setPubName(name + "的公众号江青" + now); // 含敏感词
+        //param.setPubName(""); // 空字串
+        // param.setPubName(null); // 空值
+        param.setXyPubCode(null);
+        param.setPubName(name ); // 正常
+        param.setShowLogoWhite("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1560235882617&di=3681e80445a211e47ec96d3ff5a48454&imgtype=0&src=http%3A%2F%2Fwww.dachuantuan.com%2Fuploadfile%2F2018%2F0312%2F20180312104250579.jpg");
+        param.setShowLogoColor("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1560235882617&di=3681e80445a211e47ec96d3ff5a48454&imgtype=0&src=http%3A%2F%2Fwww.dachuantuan.com%2Fuploadfile%2F2018%2F0312%2F20180312104250579.jpg");
+        param.setProductType(ProductTypeEnum.YELLOW.getType());
+        param.setIndustryCode("007002");
+        //param.setProductType(ProductTypeEnum.PP.getType());
+        param.setType(OperateTypeEnum.ADD.getType());
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SampleResult sr = new SampleResult();
+        // 定义事务的开始
+        sr.sampleStart();
+        sr.setSamplerData(reqBodyJSON.toString());// 设置请求消息体
+        try {
+            String reslut= XYApi.doPost(param, TOKEN, url2, appid, GlobalConstant.appSecrect);
+            sr.setResponseData(reslut, null);
+            if (reslut !=null) {
+                sr.setSuccessful(true);
+            }else{
+                sr.setSuccessful(false);
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            sr.setDataType(SampleResult.TEXT);
+            sr.sampleEnd();
+        }
+
+        return sr;
+    }
+
+    @Override
+    public Arguments getDefaultParameters() {
+        Arguments args = new Arguments();
+        args.addArgument("appid", GlobalConstant.appId);
+        args.addArgument("appsecret", GlobalConstant.appSecrectOriginalStr);
+        args.addArgument("url2", GlobalConstant.PUBINFO_UPLOAD_URL);
+        args.addArgument("entCode", "ENT491203318585016320");
+        return args;
+    }
+
+    @Override
+    public void setupTest(JavaSamplerContext context) {
+        super.setupTest(context);
+        url2 = context.getParameter("url2");
+        log.debug("Url:" + url2);
+        appid = context.getParameter("appid");
+        appSecrept = context.getParameter("appsecret");
+        entCode = context.getParameter("entCode");
+        TOKEN = TokenUtils.getToken(GlobalConstant.TOKEN_URL, appid, appSecrept);
+    }
+
+    public static void main(String[] args) {
+        PubInfoUploadSampler miuiIdentify = new PubInfoUploadSampler();
+        Arguments arguments = miuiIdentify.getDefaultParameters();
+        JavaSamplerContext context = new JavaSamplerContext(arguments);
+        miuiIdentify.setupTest(context);
+        miuiIdentify.runTest(context);
+    }
+
+}
+

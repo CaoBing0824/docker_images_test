@@ -1,0 +1,542 @@
+import com.alibaba.fastjson.JSON;
+import com.xy.api.demo.XYApi;
+import com.xy.api.demo.enums.OperateTypeEnum;
+import com.xy.api.demo.params.*;
+import com.xy.api.demo.utils.Base64;
+import com.xy.api.demo.utils.TokenUtils;
+import org.apache.commons.codec.Charsets;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Administarator on 2018-01-02.
+ */
+public class XYTest {
+    /**
+     * http://192.168.1.104:7082/app/access_token
+     * http://unite-acc.bizport.cn/app/access_token
+     */
+    private String TOKEN = "489449889115242496";
+
+    /** 测试地址*/
+    private final static String TOKEN_URL = "http://multi-dev.mfexcel.com:9000/app/access_token";
+    private final static String CHECK_TOKEN_URL = "http://multi-dev.mfexcel.com:7082/app/check_token";
+    /** 正式地址*/
+    //private final static String TOKEN_URL = "http://unite-acc.bizport.cn/app/access_token";
+    //private final static String TOKEN_URL_HTTPS = "https://unite-acc.bizport.cn/app/access_token";
+
+    /**
+     * 验证token
+     * http://10.0.8.123:7082/app/check_token?token=
+     * http://multi-dev.mfexcel.com:7082/app/check_token?token=
+     * http://unite-acc.bizport.cn/app/check_token?token=
+     */
+    /**
+     * 77启动脚本：/home/heyuancheng/startopenapi.sh
+     */
+
+    /**
+     * 测试地址-小源科技
+     */
+    //private final static String API_DOMAIN = "http://10.0.8.81:9901/open/api/";
+    //private final static String API_DOMAIN = "http://10.0.8.77:9901/open/api/";
+    private final static String API_DOMAIN = "http://multi-dev.mfexcel.com:9000/open/api/";
+
+    // 正式地址-小源科技
+    //private final static String API_DOMAIN = "https://open.bizport.cn/open/api/";
+
+    /** 测试 appID */
+    private final static String appId = "83605248";
+    private final static String appSecrect = "1568117226166LGuMfDiooanbKDhBOnr";
+    private final static String appSecrectEncode = Base64.encode(appSecrect.getBytes(Charsets.UTF_8));
+
+    /** 正式 appId */
+    /*private final static String appId = "65851904";
+    private final static String appSecrect = "1552446617378ljcFBWrSqoqIbW3lb9J";
+    private final static String appSecrectEncode = Base64.encode(appSecrect.getBytes(Charsets.UTF_8));*/
+
+    private final static String ENTINFO_UPLOAD_URL = API_DOMAIN + "entInfoUpload";
+    private final static String PUBINFO_UPLOAD_URL = API_DOMAIN + "pubInfoUpload";
+    private final static String CHANNELS_UPLOAD_URL = API_DOMAIN + "channelsUpload";
+    private final static String YELLOWPAGEINFO_UPLOAD_URL = API_DOMAIN + "yellowPageInfoUpload";
+    private final static String MENUINFO_UPLOAD_URL = API_DOMAIN + "menuInfoUpload";
+    private final static String RELATIONINFO_UPLOAD_URL = API_DOMAIN + "relationInfoUpload";
+    private final static String SMSPARSEINFO_UPLOAD_URL = API_DOMAIN + "smsParseInfoUpload";
+    private final static String ACTIONINFO_UPLOAD_URL = API_DOMAIN + "actionInfoUpload";
+    private final static String WHITEINFO_UPLOAD_URL = API_DOMAIN + "whiteInfoUpload";
+    private final static String OFFLINE_URL = API_DOMAIN + "updateStatus/offline";
+    private final static String UPLINE_URL = API_DOMAIN + "updateStatus/upline";
+    private final static String CHECKINFO_QUERY_URL = API_DOMAIN + "checkInfoQuery";
+    private final static String STATISTICS_PUB_URL = API_DOMAIN + "/statistics/pub";
+
+    private String now = System.currentTimeMillis() + "";
+
+    private String name = "一碗水";
+
+    // 先获取token
+    @Before
+    public void getToken(){
+        TOKEN = TokenUtils.getToken(TOKEN_URL, appId, appSecrect);
+    }
+
+    @Test
+    public void checkToken(){
+        TokenUtils.checkToken(CHECK_TOKEN_URL, TOKEN);
+    }
+    /**
+     * 所有上报接口验证
+     *
+     * @throws Exception
+     */
+    @Test
+    public void allUploadTest() throws Exception {
+        for (int i = 0; i < 5; i++) {
+            now = System.currentTimeMillis() + "";
+            name = "华山一只鸟";
+            String xyEntCode = entInfoUpload();
+            String xyPubCode = pubInfoUpload(xyEntCode);
+            String xyNumCode = channelsUpload(xyPubCode);
+            String xyMenuCode = menuInfoUpload(xyPubCode);
+            String xyRelationCode = relationInfoUpload(xyPubCode, xyNumCode, xyMenuCode, "", "ADD");
+            String xySmsCode = smsParseInfoUpload(xyPubCode);
+            String xyBtnCode = actionInfoUpload(xyPubCode, xySmsCode);
+            String xyWhiteCode = whiteInfoUpload(xyPubCode);
+        }
+    }
+
+
+    /**
+     * offline
+     *
+     * @throws Exception
+     */
+    @Test
+    public void offline() throws Exception {
+        String xyCode = "MENU_RELATION438389157056794624";
+        UpdateStatusParam param = JSON.parseObject("{\n" +
+                "\t\"xyCode\": \"" + xyCode + "\"\n" +
+                "}\n", UpdateStatusParam.class);
+        XYApi.doPost(param, TOKEN, OFFLINE_URL, appId, appSecrectEncode);
+    }
+
+    /**
+     * upline
+     *
+     * @throws Exception
+     */
+    @Test
+    public void upline() throws Exception {
+        String xyCode = "MENU_RELATION438389157056794624";
+        UpdateStatusParam param = JSON.parseObject("{\n" +
+                "\t\"xyCode\": \"" + xyCode + "\"\n" +
+                "}\n", UpdateStatusParam.class);
+        XYApi.doPost(param, TOKEN, UPLINE_URL, appId, appSecrectEncode);
+    }
+
+    @Test
+    public void batEntInfoUploadTest() throws Exception{
+        for(int i = 0; i< 2000; i++){
+            entInfoUploadTest();
+        }
+
+    }
+
+    /**
+     * 企业信息上报entInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Test(invocationCount=10000,threadPoolSize=1000)
+    public void entInfoUploadTest() throws Exception {
+        EntInfoParam pPara = new EntInfoParam();
+
+        // =============================用例1 新增=============================
+        pPara.setEntName(name + "的企业" + now);
+        pPara.setAuthDocx("https://img.zcool.cn/community/01f9ea56e282836ac72531cbe0233b.jpg@1280w_1l_2o_100sh.jpg");
+        pPara.setCreditCode("91110000802100434F"); // 统一码必须18位，由字母和数字组成
+        //pPara.setCreditCode("aaaa234"); // 位数不够的情况
+        //pPara.setCreditCode("第三方12312adf"); // 含其它符号的情况
+        //pPara.setCreditCode(""); // 空字符串的情况
+        pPara.setType(OperateTypeEnum.ADD.getType());
+
+        // =============================用例2 修改=============================
+       /* pPara.setEntName(name + "的企业" + now);
+        pPara.setXyEntCode("ENT453583691050909696"); // 修改时，此处不为空
+        pPara.setAuthDocx("https://img.zcool.cn/community/01f9ea56e282836ac72531cbe0233b.jpg@1280w_1l_2o_100sh.jpg");
+        //pPara.setCreditCode("91110000802100434B"); // 统一码必须18位，由字母和数字组成
+        //pPara.setCreditCode("aaaa234"); // 位数不够的情况
+        //pPara.setCreditCode("第三方12312adf"); // 含其它符号的情况
+        //pPara.setCreditCode(""); // 空字符串的情况
+        pPara.setType(OperateTypeEnum.MODIFY.getType());*/
+
+        entInfoUpload(pPara);
+        //entInfoUpload();
+    }
+
+    /**
+     * 公众号信息上报pubInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void pubInfoUploadTest() throws Exception {
+        pubInfoUpload("ENT461478886895579136");
+    }
+
+    /**
+     * 通道号信息上报channelsUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void channelsUploadTest() throws Exception {
+        channelsUpload("PUB461479788616404992");
+    }
+
+    /**
+     * 通道号信息上报yellowPageInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void yellowPageInfoUploadTest() throws Exception {
+        yellowPageInfoUpload("PUB455705190394232832");
+    }
+
+    /**
+     * 菜单信息上报menuInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void menuInfoUploadTest() throws Exception {
+        menuInfoUpload("PUB435771258961952768");
+    }
+
+
+    /**
+     * 关联关系上报
+     *
+     * @throws Exception
+     */
+    @Test
+    public void relationInfoUploadTest() throws Exception {
+        relationInfoUpload("PUB436227601795702784", "CHANNEL436227601959284736", "MENU436227602907189248", "MENU_RELATION436227603133669376", "MODIFY");
+    }
+
+    /**
+     * smsParseInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void smsParseInfoUploadTest() throws Exception {
+        smsParseInfoUpload("PUB435447368444334080");
+    }
+
+    /**
+     * actionInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void actionInfoUploadTest() throws Exception {
+        actionInfoUpload("PUB435447368444334080", "BUBBLE435454556785139713");
+    }
+
+    /**
+     * whiteInfoUpload
+     *
+     * @throws Exception
+     */
+    @Test
+    public void whiteInfoUploadTest() throws Exception {
+        whiteInfoUpload("PUB435447368444334080");
+    }
+
+
+    private String entInfoUpload() throws Exception {
+        EntInfoParam pPara = new EntInfoParam();
+        pPara.setEntName(name + "的企业" + now);
+        pPara.setXyEntCode("ENT453583691050909696");
+        pPara.setAuthDocx("https://img.zcool.cn/community/01f9ea56e282836ac72531cbe0233b.jpg@1280w_1l_2o_100sh.jpg");
+        //pPara.setCreditCode("91110000802100434B"); // 统一码必须18位，由字母
+        pPara.setType(OperateTypeEnum.MODIFY.getType());
+        return XYApi.doPost(pPara, TOKEN, ENTINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+    private String entInfoUpload( EntInfoParam pPara) throws Exception {
+        return XYApi.doPost(pPara, TOKEN, ENTINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+    private String pubInfoUpload(String entCode) throws Exception {
+        PubInfoParam param = new PubInfoParam();
+
+        // ===============================用例1 新增==============================
+        param.setXyEntCode(entCode);
+        //param.setPubName(name + "的公众号我要超过16个我要超过16个江青" + now); // 超过16个 字符 ，并含敏感词
+        // param.setPubName(name + "的公众号我要超过16个我要超过16个" + now); // 超过16个 字符
+        // param.setPubName(name + "的公众号江青" + now); // 含敏感词
+        //param.setPubName(""); // 空字串
+        // param.setPubName(null); // 空值
+        param.setPubName(name ); // 正常
+        param.setShowLogoWhite("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1560235882617&di=3681e80445a211e47ec96d3ff5a48454&imgtype=0&src=http%3A%2F%2Fwww.dachuantuan.com%2Fuploadfile%2F2018%2F0312%2F20180312104250579.jpg");
+        param.setShowLogoColor("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1560235882617&di=3681e80445a211e47ec96d3ff5a48454&imgtype=0&src=http%3A%2F%2Fwww.dachuantuan.com%2Fuploadfile%2F2018%2F0312%2F20180312104250579.jpg");
+        param.setProductType(ProductTypeEnum.YELLOW.getType());
+        param.setIndustryCode("007002");
+        //param.setProductType(ProductTypeEnum.PP.getType());
+        param.setType(OperateTypeEnum.ADD.getType());
+
+        // ===============================用例2 修改==============================
+       /* param.setXyEntCode(entCode);
+        param.setXyPubCode("PUB460848794989264896"); // 修改时此处不能为空
+        // param.setPubName(name + "的公众号我要超过16个我要超过16个江青" + now); // 超过16个 字符 ，并含敏感词
+        // param.setPubName(name + "的公众号我要超过16个我要超过16个" + now); // 超过16个 字符
+        // param.setPubName(name + "的公众号江青" + now); // 含敏感词
+        // param.setPubName(""); // 空字串
+        // param.setPubName(null); // 空值
+        param.setPubName(name + ""); // 正常
+        param.setShowLogoWhite("http://up.qqjia.com/z/08/tu10201_101.jpg");
+        param.setShowLogoColor("http://up.qqjia.com/z/08/tu10201_101.jpg");
+        param.setProductType(ProductTypeEnum.YELLOW.getType());
+        param.setIndustryCode("013013");
+        param.setType(OperateTypeEnum.MODIFY.getType());*/
+
+        return XYApi.doPost(param, TOKEN, PUBINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String channelsUpload(String xyPubCode) throws Exception {
+        ChannelInfoParam param = new ChannelInfoParam();
+
+        // ===============================用例1 新增==============================
+        param.setXyChannelCode(null);
+        param.setPurpose("我是用途");
+        param.setXyPubCode(xyPubCode);
+        param.setAreas("86;");
+        param.setReceiveNum("10086"); // 冲突的通道号
+        //param.setReceiveNum(null); // 空值
+        //param.setReceiveNum(""); // 空字符串
+        //param.setReceiveNum("10086" + now); // 正常
+        param.setSignatures("我是第一个签名;我是第二个签名");
+        param.setType(OperateTypeEnum.ADD.getType());
+
+        // ===============================用例2 修改==============================
+        /*param.setXyChannelCode("CHANNEL453598031233695744"); // 修改时，此处不能为空
+        param.setPurpose("我是用途");
+        param.setXyPubCode(xyPubCode);
+        param.setAreas("86;");
+        //param.setReceiveNum("10086"); // 冲突的通道号
+        //param.setReceiveNum(null); // 空值
+        //param.setReceiveNum(""); // 空字符串
+        param.setReceiveNum("10086" + now); // 正常
+        param.setSignatures("我是第一个签名;我是第二个签名");
+        param.setType(OperateTypeEnum.MODIFY.getType());*/
+
+        return XYApi.doPost(param, TOKEN, CHANNELS_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String yellowPageInfoUpload(String xyPubCode) throws Exception {
+        YellowInfoParam param = new YellowInfoParam();
+
+        // ===============================用例1 新增==============================
+        param.setTellPhone("0760-8888888");
+        //param.setXyYellowCode(null);
+        param.setXyPubCode(xyPubCode);
+        param.setType(OperateTypeEnum.ADD.getType());
+        param.setAddress("世界各地江青");
+        param.setRange("整个地球");// 正常
+        //param.setRange(null); // 空值
+        //param.setRange("");  // 空串
+        //param.setRange("整个地球江青"); // 敏感词
+        //param.setRange("整个地球这是很长的一段这是很长的一段这是很长的一段这是很长的一段这是很长的一段这是很长的一段这是很长的一段这是很长的一段很长的一段");
+        param.setLonlat("+160.491240,-39.958880");
+        param.setLonlat("");
+        param.setOpenTime("8:00-18:00"); // 正常
+        //param.setOpenTime(null); //  空值
+        //param.setOpenTime(""); // 空串
+        //param.setOpenTime("8:00-18:00;超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长"); // 正常
+        //param.setOpenTime("8:00-18:00;江青很敏感"); // 敏感词
+        param.setSerchKey("富华里江青");
+        param.setIntroduction("我们是收费最贵!"); // 正常
+        //param.setIntroduction(null); // 空值
+        //param.setIntroduction(""); // 空字串
+        //param.setIntroduction("我们是收费最贵！江青"); // 带敏感词
+        // 超长
+        //param.setIntroduction("我们是收费最贵！我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长");
+        param.setSlogan("我们的口号是我们的口号是：世界第一等");// 正常
+        //param.setSlogan(""); // 空字串
+        //param.setSlogan(null); // 空值
+        //param.setSlogan("江青我们的口号是我们的口号是：世界第一等");// 带敏感词
+        //param.setSlogan("江青我们的口号是我们的口号是：世界第一等.我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超我要超长我要超长我要超长我要超长我要超"); // 超长
+        // ===============================用例2 修改==============================
+        /*param.setTellPhone("0760-8888888");
+        param.setXyYellowCode("YELLOW_PAGE453888880354021376"); // 修改时，必须带上
+        param.setXyPubCode(xyPubCode);
+        param.setType(OperateTypeEnum.MODIFY.getType());
+        param.setAddress("珠海地王");
+        param.setRange("整个地球");// 正常
+        //param.setRange(null); // 空值
+        //param.setRange("");  // 空串
+        //param.setRange("整个地球江青"); // 敏感词
+        //param.setRange("整个地球这是很长的一段这是很长的一段这是很长的一段这是很长的一段一段这是很长的一段这是很长的一段这是很长的一段这是很长的一段");
+        param.setLonlat("+160.491240,-39.958880");
+        param.setOpenTime("8:00-18:00"); // 正常
+        //param.setOpenTime(null); //  空值
+        //param.setOpenTime(""); // 空串
+        //param.setOpenTime("8:00-18:00;超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长超长"); // 正常
+        //param.setOpenTime("8:00-18:00;江青很敏感"); // 敏感词
+        param.setSerchKey("富华里");
+        param.setIntroduction("我们是收钱最快的！");
+        //param.setIntroduction(null); // 空值
+        //param.setIntroduction(""); // 空字串
+        //param.setIntroduction("我们是收费最贵！江青"); // 带敏感词
+        // 超长
+        //param.setIntroduction("我们是收费最贵！我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长");
+        param.setSlogan("我们的口号是我们的口号是：世界第一等");// 正常
+        //param.setSlogan(""); // 空字串
+        //param.setSlogan(null); // 空值
+        //param.setSlogan("江青我们的口号是我们的口号是：世界第一等");// 带敏感词
+        //param.setSlogan("江青我们的口号是我们的口号是：世界第一等.我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超长我要超我要超长我要超长我要超长我要超长我要超"); // 超长*/
+        return XYApi.doPost(param, TOKEN, YELLOWPAGEINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String menuInfoUpload(String xyPubCode) throws Exception {
+        MenuInfoParam param = JSON.parseObject("{\n" +
+                "\t\"xyPubCode\": \"" + xyPubCode + "\",\n" +
+                "\t\"xyMenuCode\": \"\",\n" +
+                "\t\"startTime\": \"2019-03-23T06:59:55Z\",\n" +
+                "\t\"endTime\": \"2019-03-23T07:59:55Z\",\n" +
+                "\t\"type\": \"ADD\",\n" +
+                "\t\"itemName01\": \"左菜单\",\n" +
+                "\t\"itemType01\": \"OPEN_URL\",\n" +
+                "\t\"itemTypeVal01\": \"{\\\"url_val\\\":\\\"http://qq.com\\\"}\",\n" +
+                "\t\"itemName02\": \"中菜单\",\n" +
+                "\t\"itemType02\": \"MENU\",\n" +
+                "\t\"itemTypeVal02\": \"{}\",\n" +
+                "\t\"subMenu02\": [{\n" +
+                "\t\t\"subItemName\": \"中菜单一\",\n" +
+                "\t\t\"subItemType\": \"CALL\",\n" +
+                "\t\t\"subItemTypeVal\": \"{\\\"phonenum\\\":\\\"0756-8122623\\\"}\"\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"subItemName\": \"中菜单二\",\n" +
+                "\t\t\"subItemType\": \"CALL\",\n" +
+                "\t\t\"subItemTypeVal\": \"{\\\"phonenum\\\":\\\"0756-8122623\\\"}\"\n" +
+                "\t}],\n" +
+                "\t\"itemName03\": \"右菜单\",\n" +
+                "\t\"itemType03\": \"MENU\",\n" +
+                "\t\"itemTypeVal03\": \"{}\",\n" +
+                "\t\"subMenu03\": [{\n" +
+                "\t\t\"subItemName\": \"右菜单一\",\n" +
+                "\t\t\"subItemType\": \"CALL\",\n" +
+                "\t\t\"subItemTypeVal\": \"{\\\"phonenum\\\":\\\"0756-8122623\\\"}\"\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"subItemName\": \"右菜单二\",\n" +
+                "\t\t\"subItemType\": \"CALL\",\n" +
+                "\t\t\"subItemTypeVal\": \"{\\\"phonenum\\\":\\\"0756-8122623\\\"}\"\n" +
+                "\t}]\n" +
+                "}", MenuInfoParam.class);
+        param.setMenuDesc("menuDesc");
+        return XYApi.doPost(param, TOKEN, MENUINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String relationInfoUpload(String xyPubCode, String xyNumCode, String xyMenuCode, String xyRelationCode, String type) throws Exception {
+
+        RelationInfoParam relationInfoParam = JSON.parseObject("{\n" +
+                "\t\"xyRelationCode\": \"" + xyRelationCode + "\",\n" +
+                "\t\"xyPubCode\": \"" + xyPubCode + "\",\n" +
+                "\t\"xyNumCode\": \"" + xyNumCode + "\",\n" +
+                "\t\"xyMenuCode\": \"" + xyMenuCode + "\",\n" +
+                "\t\"agPhoneId\": \"\",\n" +
+                "\t\"areas\":\"44\",\n" +
+                "\t\"type\": \"" + type + "\"\n" +
+                "}", RelationInfoParam.class);
+        return XYApi.doPost(relationInfoParam, TOKEN, RELATIONINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+    private String smsParseInfoUpload(String xyPubCode) throws Exception {
+        SmsParseInfoParam relationInfoParam = JSON.parseObject("{\n" +
+                "\t\"xyPubCode\": \"" + xyPubCode + "\",\n" +
+                "\t\"xySmsCode\": \"\",\n" +
+                "\t\"sceneCode\": \"01001\",\n" +
+                "\t\"smsContent\": \"您尾号4611卡11日12:16ATM支出(取款)300元，手续费4元。工银信用卡【工商银行】\",\n" +
+                "\t\"smsTemplate\": \"您尾号{卡号}{消费时间}{交易类型}{金额}，手续费{金额}。工银信用卡【工商银行】\",\n" +
+                "\t\"parseContent\": \"消费金额：300元;卡号：4611;消费时间：11日12:16;交易类型：ATM支持（取款）;手续费：4元\",\n" +
+                "\t\"type\": \"ADD\"\n" +
+                "}\n", SmsParseInfoParam.class);
+        return XYApi.doPost(relationInfoParam, TOKEN, SMSPARSEINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String actionInfoUpload(String xyPubCode, String xySmsCode) throws Exception {
+        ActionInfoParam param = JSON.parseObject("{\n" +
+                "\t\"xyPubCode\": \"" + xyPubCode + "\",\n" +
+                "\t\"sceneCode\": \"01001\",\n" +
+                "\t\"xySmsCode\": \"" + xySmsCode + "\",\n" +
+                "\t\"xyBtnCode\": \"\",\n" +
+                "\t\"btnName\": \"服务热线\",\n" +
+                "\t\"actionType\": \"CALL\",\n" +
+                "\t\"actionTypeVal\": \"{\\\"phonenum\\\":\\\"0756-8122623\\\"}\",\n" +
+                "\t\"priority\": \"1\",\n" +
+                "\t\"startTime\": \"2019-03-23T06:59:55Z\",\n" +
+                "\t\"endTime\": \"2019-03-23T07:59:55Z\",\n" +
+                "\t\"type\": \"ADD\"\n" +
+                "}\n", ActionInfoParam.class);
+        return XYApi.doPost(param, TOKEN, ACTIONINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    private String whiteInfoUpload(String xyPubCode) throws Exception {
+        WhiteInfoParam param = JSON.parseObject("{\n" +
+                "\t\"xyWhiteCode\": \"\",\n" +
+                "\t\"xyPubCodes\": \"" + xyPubCode + "\",\n" +
+                "\t\"phoneBrand\": \"华为\",\n" +
+                "\t\"phoneType\": \"P20\",\n" +
+                "\t\"imeis\": \"" + System.currentTimeMillis() + "\",\n" +
+                "\t\"type\": \"ADD\"\n" +
+                "}", WhiteInfoParam.class);
+        return XYApi.doPost(param, TOKEN, WHITEINFO_UPLOAD_URL, appId, appSecrectEncode);
+    }
+
+
+    /**
+     * 数据查询
+     *
+     * @throws Exception
+     */
+    private static void testCheckInfoQueryParam() throws Exception {
+        CheckInfoQueryParam bpara = new CheckInfoQueryParam();
+        bpara.setXyCode("WHITE_LIST398796177497133056");
+        System.out.println(XYApi.doPost(bpara, "426813719554633728", CHECKINFO_QUERY_URL, appId, appSecrectEncode));
+    }
+
+
+    /**
+     * 回调代理商通知接口
+     *
+     * @throws Exception
+     */
+    private static void callbackInterface() throws Exception {
+        List<CheckNoticeBo> list = new ArrayList<CheckNoticeBo>();
+        CheckNoticeBo xyStatus = new CheckNoticeBo();
+        xyStatus.setRemark("remark ");
+        xyStatus.setStatus(3);
+        xyStatus.setDataType("CHANNEL");
+        xyStatus.setStatusStr("审核不通过");
+        xyStatus.setXyVersion("20190226054516158");
+        xyStatus.setXyCode("KH00000001");
+        list.add(xyStatus);
+        System.out.println(JSON.toJSONString(list));
+        System.out.println(XYApi.callbackInterface(list, appId, appSecrectEncode));
+    }
+
+}

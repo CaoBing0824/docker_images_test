@@ -1,0 +1,39 @@
+
+package com.xy.api.demo;
+
+import com.alibaba.fastjson.JSONObject;
+import com.xy.api.demo.params.CheckNoticeBo;
+import com.xy.api.demo.utils.ApiUtils;
+import com.xy.api.demo.utils.FlagConst;
+
+import java.util.List;
+import java.util.Map;
+
+public class XYApi {
+    public static JSONObject callbackInterface(List<CheckNoticeBo> xyStatus, String appId, String appSecrect) throws Exception {
+        Byte nz = FlagConst.ZIP_FLAG_GZIP;
+        Byte crypt = FlagConst.CRYPT_FLAG_AES128;
+        byte[] sendData = JSONObject.toJSONBytes(xyStatus);
+        Map<String, Object> reqBody = ApiUtils.transBean2Map(xyStatus);
+//        JSONObject result = ApiUtils.post("http://maas01.33e9.com/partner/callbackInterface", nz, crypt, reqBody, sendData, appId, null, appSecrect);
+        JSONObject result = ApiUtils.post("http://183.233.91.210:9112/maas-operation/partner/callbackInterface", nz, crypt, reqBody, sendData, appId, null, appSecrect);
+        System.out.println(result.toJSONString());
+        return result;
+    }
+
+    /**
+     * 接口请求
+     *
+     * @param
+     * @return
+     */
+    public static String doPost(Object para, String token, String apiUrl, String appId, String appSecrect) throws Exception {
+        Byte nz = FlagConst.ZIP_FLAG_GZIP;
+        Byte crypt = FlagConst.CRYPT_FLAG_AES128;
+        byte[] sendData = JSONObject.toJSONBytes(para);
+        Map<String, Object> reqBody = ApiUtils.transBean2Map(para);
+        JSONObject result = ApiUtils.post(apiUrl, nz, crypt, reqBody, sendData, appId, token, appSecrect);
+        System.out.println(result.toJSONString());
+        return result.getJSONObject("message").get("xyCode").toString();
+    }
+}

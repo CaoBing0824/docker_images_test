@@ -1,0 +1,41 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+/**
+ * 公众号信息接口参数
+ *
+ * @Author: heyuancheng@mfexcel.com
+ * @Date: 2019-01-02 下午 03:36
+ */
+@Data
+public class PubInfoParam extends BaseParam {
+    /**
+     * 企业编码
+     */
+    private String xyEntCode;
+    /**
+     * 公众号编码
+     */
+    private String xyPubCode;
+    /**
+     * 公众号名称
+     */
+    private String pubName;
+    /**
+     * 白底图片资源
+     */
+    private String showLogoWhite;
+    /**
+     * 彩色图片资源
+     */
+    private String showLogoColor;
+    /**
+     * 产品类型
+     */
+    private String productType;
+    /**
+     * 行业编码
+     */
+    private String industryCode;
+}

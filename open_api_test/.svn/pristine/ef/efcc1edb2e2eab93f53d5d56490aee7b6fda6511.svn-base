@@ -1,0 +1,89 @@
+package com.xy.api.demo.utils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.http.client.methods.HttpPost;
+import org.springframework.util.StringUtils;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * @author heyuancheng@mfexcel.com
+ *         Date:2019-01-10.
+ **/
+public class ApiUtils {
+
+    public static Map<String, Object> transBean2Map(Object obj) throws Exception {
+        if (obj == null) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
+        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+        for (PropertyDescriptor property : propertyDescriptors) {
+            String key = property.getName();
+            if (!key.equals("class")) {
+                Method getter = property.getReadMethod();
+                Object value = getter.invoke(obj);
+                if (value != null && value.getClass().getSimpleName().equals("String")) {
+                    map.put(key, value);
+                }
+            }
+        }
+        return map;
+    }
+
+    public static JSONObject post(String url, Byte nz, Byte crypt, Map<String, Object> reqBody, byte[] sendData, String appId, String token, String appSecrect) {
+        HttpPost post = new HttpPost(url);
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("appId", appId);
+        headers.put("token", token);
+        headers.put("timestamp", System.currentTimeMillis() + "");
+        headers.put("v", "0001");
+        // sign 参数不参与签名
+        headers.put("sign", SignUtil.getSign(appId, token, appSecrect, nz, crypt, headers, reqBody));
+        HttpUtil.addHeaders(headers, post);
+        System.out.println(JSON.toJSONString(headers));
+        sendData = HttpUtil.buildSendData(sendData, nz, crypt, appSecrect);
+        String result = HttpUtil.post(post, sendData, appSecrect);
+        System.out.println("---------------result------------:" + result);
+        if (StringUtils.isEmpty(result)) {
+            return null;
+        }
+        JSONObject jsonResult = JSONObject.parseObject(result);
+        return jsonResult;
+    }
+
+    /**
+     * 数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序）， 使用URL键值对的格式（即key1=value1&key2=value2…）拼接成字符串
+     *
+     * @param map     生成签名的参数集合
+     * @param signKey 签名密钥
+     * @return
+     */
+    public static String treeMapToString(TreeMap<String, Object> map, String signKey) {
+        if (map == null || map.size() == 0) {
+            return null;
+        }
+        Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
+        StringBuilder builder = new StringBuilder(2048);
+        while (it.hasNext()) {
+            Map.Entry<String, Object> entry = it.next();
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (null != key && (key = key.trim()).length() > 0 && null != value && (value = value.toString().trim()).toString().length() > 0) {
+                builder.append(key).append("=").append(value).append("&");
+            } else {
+                continue;
+            }
+        }
+        return builder.append("signKey=").append(signKey).toString();
+    }
+}

@@ -1,0 +1,105 @@
+package com.xy.api.demo.jmeterSampler;
+
+import com.xy.api.demo.XYApi;
+import com.xy.api.demo.constant.GlobalConstant;
+import com.xy.api.demo.enums.OperateTypeEnum;
+import com.xy.api.demo.params.EntInfoParam;
+import com.xy.api.demo.utils.Base64;
+import com.xy.api.demo.utils.TokenUtils;
+import org.apache.commons.codec.Charsets;
+import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
+import org.apache.jmeter.samplers.SampleResult;
+import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.Serializable;
+
+
+public class entInfoUpload extends AbstractJavaSamplerClient implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(entInfoUpload.class);
+
+    protected String appid;
+    protected String appSecrept;
+    protected String url;
+    private JSONObject reqBodyJSON = new JSONObject();
+    private String TOKEN;
+    private String now = System.currentTimeMillis() + "";
+
+    private String name = "一碗水";
+    public Arguments getDefaultParameters() {
+        Arguments args = new Arguments();
+        args.addArgument("appid", "83605248");
+        args.addArgument("appsecret", "1568117226166LGuMfDiooanbKDhBOnr");
+        args.addArgument("url", GlobalConstant.ENTINFO_UPLOAD_URL);
+        return args;
+    }
+
+    public void setupTest(JavaSamplerContext context) {
+            url = context.getParameter("url");
+            log.debug("Url:" + url);
+            appid = context.getParameter("appid");
+            appSecrept = context.getParameter("appsecret");
+        TOKEN = TokenUtils.getToken("http://multi-dev.mfexcel.com:9000/app/access_token", appid, appSecrept);
+
+    }
+
+    public SampleResult runTest(JavaSamplerContext context) {
+        EntInfoParam pPara = new EntInfoParam();
+        pPara.setEntName(name + "的企业" + now);
+        pPara.setAuthDocx("https://img.zcool.cn/community/01f9ea56e282836ac72531cbe0233b.jpg@1280w_1l_2o_100sh.jpg");
+        pPara.setCreditCode("91110000802100434F"); // 统一码必须18位，由字母和数字组成
+        //pPara.setCreditCode("aaaa234"); // 位数不够的情况
+        //pPara.setCreditCode("第三方12312adf"); // 含其它符号的情况
+        //pPara.setCreditCode(""); // 空字符串的情况
+        pPara.setType(OperateTypeEnum.ADD.getType());
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SampleResult sr = new SampleResult();
+        // 定义事务的开始
+        sr.sampleStart();
+        sr.setSamplerData(reqBodyJSON.toString());// 设置请求消息体
+        try {
+                String reslut= XYApi.doPost(pPara, TOKEN, url, appid,Base64.encode(appSecrept.getBytes(Charsets.UTF_8)));
+            sr.setResponseData(reslut, null);
+            if (reslut !=null) {
+                sr.setSuccessful(true);
+            }else{
+                sr.setSuccessful(false);
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            sr.setDataType(SampleResult.TEXT);
+            sr.sampleEnd();
+        }
+
+        return sr;
+    }
+
+    public void teardownTest(JavaSamplerContext context) {
+
+    }
+
+    public static void main(String[] args) {
+        entInfoUpload miuiIdentify = new entInfoUpload();
+        Arguments arguments = miuiIdentify.getDefaultParameters();
+        JavaSamplerContext context = new JavaSamplerContext(arguments);
+        miuiIdentify.setupTest(context);
+        miuiIdentify.runTest(context);
+        miuiIdentify.teardownTest(context);
+    }
+
+}

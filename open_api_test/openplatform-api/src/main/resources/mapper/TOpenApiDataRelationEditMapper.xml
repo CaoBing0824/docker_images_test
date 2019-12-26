@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.boot.open.mapper.TOpenApiDataRelationEditMapper">
+    <insert id="updateDataRelation">
+		REPLACE INTO t_open_api_data_relation_edit
+		(xy_code,`version`,data_type,workorder_id,check_status,`status`)
+		VALUES (#{xyCode},#{version},#{dataType},#{workorderId},#{checkStatus},#{status})
+	</insert>
+</mapper>

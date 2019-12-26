@@ -1,0 +1,11 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+
+@Data
+public class CheckInfoQueryParam {
+
+
+    private String xyCode;
+}

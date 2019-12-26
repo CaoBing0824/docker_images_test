@@ -1,0 +1,26 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+/**
+ * 公众号信息接口参数
+ *
+ * @Author: heyuancheng@mfexcel.com
+ * @Date: 2019-01-02 下午 03:36
+ */
+@Data
+public class SubMenuInfoParam {
+    /**
+     * 菜单名称
+     */
+    private String subItemName;
+    /**
+     * 菜单类型
+     */
+    private String subItemType;
+    /**
+     * 菜单配置内容
+     */
+    private String subItemTypeVal;
+
+}

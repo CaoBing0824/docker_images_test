@@ -1,0 +1,61 @@
+package com.xy.api.demo.params;
+
+import lombok.Data;
+
+import java.util.List;
+
+/**
+ * 菜单关联数据
+ *
+ * @author Ray
+ * @Date: 2018-12-29
+ */
+@Data
+public class RelationInfoParam extends BaseParam {
+
+	/**
+	 * 小源关联编码， (首次为空、更新不能为空)
+	 */
+	private String xyRelationCode;
+
+	/**
+	 * 必填，小源公众号编码
+	 */
+	private String xyPubCode;
+
+	/**
+	 * 非必填，小源号码编码
+	 */
+	private String xyNumCode;
+
+	/**
+	 * 必填，小源菜单编码
+	 */
+	private String xyMenuCode;
+
+	/**
+	 * 非必填，用户标识Id，最大长度=50
+	 */
+	private String agPhoneId;
+
+	/**
+	 * 必填，区域1.5 区域省份编码对应表，多个英文分号隔开‘;’最大长度=500
+	 */
+	private String areas;
+
+	/**
+	 * 作逻辑使用，不作为入参
+	 */
+	private List<String> areasLs;
+
+	/**
+	 * 作逻辑使用，不作为入参
+	 */
+	private String version;
+
+	/**
+	 * 代理商编码  作逻辑使用，不作为入参
+	 */
+	private String xyAgentCode;
+
+}
