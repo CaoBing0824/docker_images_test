@@ -1,0 +1,98 @@
+spring:
+  # H2 DATABASE CONFIG
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    dynamic:
+      primary: master
+      datasource:
+        # 短信开放平台数据库
+        master:
+          url: jdbc:mysql://${datasource_url:192.168.1.96:3306}/ope_opr?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+          username: ${datasource_username:root}
+          password: ${datasource_password:xy123456}
+          driver-class-name: com.mysql.jdbc.Driver
+        # 户部数据库
+        publicnum:
+          url: jdbc:mysql://${publicnum_datasource_url:10.0.200.34:3306}/${publicnum_datasource_dbname:publicnum_test}?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+          username: ${publicnum_datasource_username:dev}
+          password: ${publicnum_datasource_password:123456}
+          driver-class-name: com.mysql.jdbc.Driver
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.xy.boot.open.entity
+#  typeEnumsPackage: com.xy.boot.open.*.enums
+  global-config:
+    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+    id-type: 2
+    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+    field-strategy: 2
+    #驼峰下划线转换
+    db-column-underline: true
+    #刷新mapper 调试神器
+    refresh-mapper: true
+    #数据库大写下划线转换
+    #capital-mode: true
+    #序列接口实现类配置,不在推荐使用此方式进行配置,请使用自定义bean注入
+    key-generator: com.baomidou.mybatisplus.incrementer.H2KeyGenerator
+    #逻辑删除配置（下面3个配置）
+    logic-delete-value: 0
+    logic-not-delete-value: 1
+    #自定义sql注入器,不在推荐使用此方式进行配置,请使用自定义bean注入
+    sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+    #自定义填充策略接口实现,不在推荐使用此方式进行配置,请使用自定义bean注入
+    meta-object-handler: com.xy.boot.common.base.config.MyMetaObjectHandler
+    #自定义SQL注入器
+    #sql-injector: com.baomidou.springboot.xxx
+    # SQL 解析缓存，开启后多租户 @SqlParser 注解生效
+    sql-parser-cache: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-enums-package: com.xy.boot.open.entity.enums
+
+# 统一平台校验token 开发
+xy-verify:
+    #是否开启token校验 1开启 0关闭
+    open: ${open-check-token:0}
+    checkTokenUrl: http://10.0.8.123:7082/app/check_token
+
+#小源系统配置
+xy-config:
+  log-back:
+    log-level: ${xy-log-level:INFO}
+    log-name: ${xy-log-name:log}
+
+
+getPubData : http://192.168.101.214:9600/statistics/getpubdata
+
+# 敏感词
+sensitiveWordList: classpath:data/sensitive-word.txt
+# 敏感词在redis库的Set名字
+#sensitiveWordRedisSetName: business_sensitive_words
+
+# 高德地址查询接口
+amap:
+  search-place:
+    url:  https://restapi.amap.com/v3/place/text
+  key: b9f038d447a3fe18142d15f7b9849195
+
+# 限制一次传入品牌的个数
+maximumOfBrandCodes: 50
+
+# 限制一次传入单个品牌的长度
+maximumOfBrandLength: 8
+
+# 限制一次传入确认公众号验收的个数
+maximumOfPubCodes: 50
+
+# 服务热线的最小长度（除去了'-'）
+tellPhoneMinLength: 5
+
+# 服务热线的最大长度（包含了'-'）
+tellPhoneMaxLength: 20
+
+
