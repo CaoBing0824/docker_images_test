@@ -46,6 +46,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
             String message = JSON.toJSONString(body);
             log.info("加密之前的消息体："+message);
             try {
+                //todo
                 String appSecret = xyAgentCodeHolder.getXyAgentAppSecret();
                 byte[] messageBt = ZipUtils.compress(message.getBytes("UTF-8"));
                 messageBt = MyAESutils.encrypt(messageBt,appSecret);
