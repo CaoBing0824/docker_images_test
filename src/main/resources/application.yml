@@ -10,7 +10,7 @@ spring:
 
 #app
 server:
-    port: 9903
+    port: 9905
     servlet:
       context-path: /open/api/
 
