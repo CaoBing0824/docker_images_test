@@ -28,21 +28,6 @@
 		<commons.configuration.version>1.10</commons.configuration.version>
 		<dynamic.datasource.version>2.4.2</dynamic.datasource.version>
 	</properties>
-	
-	<repositories>
-	   <repository>
-		<id>central</id>
-		<url>http://host:port/content/groups/public</url>
-	   </repository>
-	</repositories>
-	
-	<pluginRepositories>
-	    <pluginRepository>
-		<id>central</id>
-		<url>http://host:port/content/groups/public</url>
-	    </pluginRepository>
-	</pluginRepositories>
-
 
 	<dependencies>
 
