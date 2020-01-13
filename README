@@ -1,1 +1,7 @@
-hello wprld!
+Jenkins中部署git的maven时：若用到私有jar 需要修改配置  用maven中setting文件设置的本地路径  实质是没有取到需用.m2
+
+Goals and options = clean package -Dmaven.repo.local=C:\Users\Administrator\.m2\repository -Dmaven.test.skip=true
+
+-Dmaven.repo.local=C:\Users\Administrator\.m2\repository
+
+其他设置为default
