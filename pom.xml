@@ -24,7 +24,7 @@
 		<java.version>1.8</java.version>
 		<docker.image.prefix>com_xy_boot</docker.image.prefix>
 		<commons.lang.version>2.6</commons.lang.version>
-		<commons.io.version>2.5</commons.io.version>
+		<commons.io.version>2.7</commons.io.version>
 		<commons.configuration.version>1.10</commons.configuration.version>
 		<dynamic.datasource.version>2.4.2</dynamic.datasource.version>
 	</properties>
